@@ -10,7 +10,7 @@ def create_appointment(appointments: Dict[int, dict],
                        diagnosis: str = "",
                        notes: str = "") -> int:
 
-    appointment_id = max(appointments.key()) + 1 if appointments else 1
+    appointment_id = max(appointments.keys()) + 1 if appointments else 1
 
     appointments[appointment_id] = {
         "id": appointment_id,
@@ -32,7 +32,7 @@ def get_appointment_by_id(appointments: Dict[int, dict],
     return appointments.get(appointment_id)
 
 
-def get_appointment_by_patient(appointments: Dict[int, dict],
+def get_appointments_by_patient(appointments: Dict[int, dict],
                                patient_id: int) -> List[dict]:
     return [app for app in appointments.values() if app["patient_id"]
             == patient_id]
@@ -44,7 +44,7 @@ def get_appointments_by_specialist(appointments: Dict[int, dict],
             == specialist_id]
 
 
-def get_appointment_by_date(appointments: Dict[int, dict],
+def get_appointments_by_date(appointments: Dict[int, dict],
                             appointment_date: str) -> List[dict]:
     return [app for app in appointments.values() if app["appointment_date"]
             == appointment_date]
@@ -63,11 +63,10 @@ def is_slot_available(appointments: Dict[int, dict],
     return True
 
 
-def cancel_appointment(appointments: Dict[int, dict],
-                       appointment_id: int) -> bool:
+def cancel_appointment(appointments, appointment_id):
     appointment = appointments.get(appointment_id)
-    if appointment and appointment['status'] == "scheduled":
-        appointment["status"] == "cancelled"
+    if appointment and appointment["status"] == "scheduled":
+        appointment["status"] = "cancelled"
         return True
     return False
 
@@ -77,7 +76,7 @@ def complete_appointment(appointments: Dict[int, dict],
                          diagnosis: str = "",
                          notes: str = "") -> bool:
     appointment = appointments.get(appointment_id)
-    if appointment and appointments["status"] in ["scheduled", "no_show"]:
+    if appointment and appointment["status"] in ["scheduled", "no_show"]:
         appointment["status"] = "completed"
         if diagnosis:
             appointment["diagnosis"] = diagnosis
