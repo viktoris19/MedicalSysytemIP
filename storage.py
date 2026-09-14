@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from typing import Any
 
 
 def load_data(filename, default=None):
