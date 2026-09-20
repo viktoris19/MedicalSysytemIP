@@ -50,3 +50,62 @@
 - Поиск и фильтрация данных
 - Статистика системы
 - Сохранение данных в JSON-файлы
+
+# Система управления медицинскими записями
+
+Консольное приложение для управления медицинскими записями пациентов,
+специалистов и документов. Реализовано с использованием ООП.
+
+## Назначение
+
+Приложение автоматизирует работу медицинского центра:
+- учёт пациентов и специалистов;
+- создание и ведение записей на приём;
+- прикрепление медицинских документов;
+- поиск, сортировку и фильтрацию данных;
+- сохранение данных между запусками.
+
+## Основные классы
+
+### Patient
+Атрибуты: `id`, `first_name`, `last_name`, `birth_date`, `phone`,
+`email`, `insurance_policy`, `address`.
+
+Методы: `get_full_name()`, `get_age()`, `__str__()`.
+
+### Specialist
+Атрибуты: `id`, `first_name`, `last_name`, `speciality`, `phone`,
+`email`, `experience_years`.
+
+Методы: `get_full_name()`, `is_experienced()`, `__str__()`.
+
+### Appointment
+Атрибуты: `id`, `patient` (объект Patient), `specialist` (объект Specialist),
+`appointment_date`, `appointment_time`, `status`, `complaint`, `diagnosis`, `notes`.
+
+Методы: `cancel()`, `complete()`, `get_status_display()`, `__str__()`.
+
+### Document
+Атрибуты: `id`, `appointment` (объект Appointment), `document_type`, `title`,
+`content`, `file_path`.
+
+Методы: `get_type_display()`, `__str__()`.
+
+## Взаимодействие объектов
+
+- `Appointment` хранит ссылки на `Patient` и `Specialist`.
+- `Document` хранит ссылку на `Appointment`.
+- Данные связанных объектов доступны через атрибуты:
+  `appointment.patient.get_full_name()`, `appointment.specialist.speciality`,
+  `document.appointment.id`.
+
+## Хранение данных
+
+Данные хранятся в JSON-файлах в каталоге `data/`:
+- `patients.json`
+- `specialists.json`
+- `appointments.json`
+- `documents.json`
+
+В `appointments.json` и `documents.json` сохраняются **идентификаторы**
+связанных объектов. При загрузке объекты восстанавливаются по ID.

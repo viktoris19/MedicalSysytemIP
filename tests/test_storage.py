@@ -1,45 +1,88 @@
 import os
 import tempfile
-from storage import load_data, save_data
+
+from models import Appointment, Document, Patient, Specialist
+import storage
 
 
-def test_load_data_file_not_found():
+def test_save_and_load_patients():
     with tempfile.TemporaryDirectory() as tmpdir:
-        filename = os.path.join(tmpdir, "not_exists.json")
-        data = load_data(filename, {"default": True})
-        assert data == {"default": True}
+        filename = os.path.join(tmpdir, 'patients.json')
+        patients = [Patient(
+            1, 'Иван', 'Смирнов', '1985-06-15',
+            '+79990000000', 'ivan@mail.ru', 'POLICY-1',
+        )]
+        assert storage.save_patients(filename, patients) is True
+
+        loaded = storage.load_patients(filename)
+        assert len(loaded) == 1
+        assert loaded[0].first_name == 'Иван'
+        assert loaded[0].insurance_policy == 'POLICY-1'
 
 
-def test_save_and_load_data():
+def test_save_and_load_specialists():
     with tempfile.TemporaryDirectory() as tmpdir:
-        filename = os.path.join(tmpdir, "test.json")
-        test_data = {"key": "value", "number": 42}
+        filename = os.path.join(tmpdir, 'specialists.json')
+        specialists = [Specialist(
+            1, 'Анна', 'Петрова', 'Кардиолог',
+            '+79991234567', 'petrova@clinic.ru', 10,
+        )]
+        assert storage.save_specialists(filename, specialists) is True
 
-        assert save_data(filename, test_data) is True
-        assert os.path.exists(filename)
-
-        loaded_data = load_data(filename)
-        assert loaded_data == test_data
+        loaded = storage.load_specialists(filename)
+        assert len(loaded) == 1
+        assert loaded[0].speciality == 'Кардиолог'
 
 
-def test_load_data_corrupted():
+def test_save_and_load_appointments():
     with tempfile.TemporaryDirectory() as tmpdir:
-        filename = os.path.join(tmpdir, "corrupted.json")
+        filename = os.path.join(tmpdir, 'appointments.json')
+        patient = Patient(
+            1, 'Иван', 'Смирнов', '1985-06-15',
+            '+79990000000', 'ivan@mail.ru', 'POLICY-1',
+        )
+        specialist = Specialist(
+            1, 'Анна', 'Петрова', 'Кардиолог',
+            '+79991234567', 'petrova@clinic.ru', 10,
+        )
+        appointments = [Appointment(
+            1, patient, specialist, '2026-09-25', '10:30',
+        )]
+        assert storage.save_appointments(filename, appointments) is True
 
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write("this is not valid json {")
+        loaded = storage.load_appointments(
+            filename, [patient], [specialist],
+        )
+        assert len(loaded) == 1
+        assert loaded[0].patient.id == 1
+        assert loaded[0].specialist.id == 1
 
-        data = load_data(filename, {"default": True})
-        assert data == {"default": True}
 
-
-def test_load_data_returns_dict():
+def test_save_and_load_documents():
     with tempfile.TemporaryDirectory() as tmpdir:
-        filename = os.path.join(tmpdir, "test.json")
+        filename = os.path.join(tmpdir, 'documents.json')
+        patient = Patient(
+            1, 'Иван', 'Смирнов', '1985-06-15',
+            '+79990000000', 'ivan@mail.ru', 'POLICY-1',
+        )
+        specialist = Specialist(
+            1, 'Анна', 'Петрова', 'Кардиолог',
+            '+79991234567', 'petrova@clinic.ru', 10,
+        )
+        appointment = Appointment(
+            1, patient, specialist, '2026-09-25', '10:30',
+        )
+        documents = [Document(
+            1, appointment, 'analysis', 'ЭКГ', content='текст',
+        )]
+        assert storage.save_documents(filename, documents) is True
 
-        test_data = {"key": "value"}
-        save_data(filename, test_data)
+        loaded = storage.load_documents(filename, [appointment])
+        assert len(loaded) == 1
+        assert loaded[0].title == 'ЭКГ'
 
-        loaded = load_data(filename)
-        assert isinstance(loaded, dict)
-        assert loaded["key"] == "value"
+
+def test_load_missing_file_returns_empty():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filename = os.path.join(tmpdir, 'missing.json')
+        assert storage.load_patients(filename) == []

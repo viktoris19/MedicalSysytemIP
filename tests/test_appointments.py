@@ -1,111 +1,163 @@
-from appointments import (
-    create_appointment, get_appointment_by_id,
-    cancel_appointment, complete_appointment,
-    get_appointment_status, is_slot_available,
-    get_appointments_by_patient, get_appointments_by_specialist
+from models import Appointment, Patient, Specialist
+from models.appointments import (
+    cancel_appointment,
+    complete_appointment,
+    create_appointment,
+    get_appointments_by_patient,
+    get_appointments_by_specialist,
+    is_slot_available,
 )
 
 
-def test_create_appointment():
-    appointments = {}
-    appointment_id = create_appointment(
-        appointments,
-        patient_id=1,
-        specialist_id=1,
-        appointment_date="2026-09-25",
-        appointment_time="10:30",
-        complaint="Боли в груди"
+def _make_patient(patient_id: int = 1, name: str = 'Иван') -> Patient:
+    return Patient(
+        patient_id, name, 'Смирнов', '1985-06-15',
+        '+79990000000', 'test@mail.ru', f'POLICY-{patient_id}',
     )
 
-    assert appointment_id == 1
-    assert len(appointments) == 1
-    assert appointments[1]["status"] == "scheduled"
-    assert appointments[1]["complaint"] == "Боли в груди"
+
+def _make_specialist(
+    specialist_id: int = 1, speciality: str = 'Кардиолог',
+) -> Specialist:
+    return Specialist(
+        specialist_id, 'Анна', 'Петрова', speciality,
+        '+79991234567', f'doc{specialist_id}@clinic.ru', 10,
+    )
 
 
-def test_get_appointment_by_id():
-    appointments = {}
-    appointment_id = create_appointment(
-        appointments, 1, 1, "2026-09-25", "10:30")
+def test_appointment_creation():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointment = Appointment(
+        1, patient, specialist, '2026-09-25', '10:30',
+        complaint='Боли в груди',
+    )
+    assert appointment.id == 1
+    assert appointment.patient is patient
+    assert appointment.specialist is specialist
+    assert appointment.status == 'scheduled'
 
-    appointment = get_appointment_by_id(appointments, appointment_id)
+
+def test_appointment_cancel():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointment = Appointment(
+        1, patient, specialist, '2026-09-25', '10:30',
+    )
+    appointment.cancel()
+    assert appointment.status == 'cancelled'
+
+
+def test_appointment_complete():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointment = Appointment(
+        1, patient, specialist, '2026-09-25', '10:30',
+    )
+    appointment.complete('Диагноз', 'Заметки')
+    assert appointment.status == 'completed'
+    assert appointment.diagnosis == 'Диагноз'
+    assert appointment.notes == 'Заметки'
+
+
+def test_appointment_str():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointment = Appointment(
+        1, patient, specialist, '2026-09-25', '10:30',
+    )
+    text = str(appointment)
+    assert 'Запись #1' in text
+    assert 'Смирнов Иван' in text
+    assert 'Петрова Анна' in text
+
+
+def test_is_slot_available():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointments = []
+    create_appointment(
+        appointments, patient, specialist, '2026-09-25', '10:30',
+    )
+    assert is_slot_available(
+        appointments, specialist, '2026-09-25', '10:30',
+    ) is False
+    assert is_slot_available(
+        appointments, specialist, '2026-09-25', '11:00',
+    ) is True
+
+
+def test_create_appointment():
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointments = []
+    appointment = create_appointment(
+        appointments, patient, specialist, '2026-09-25', '10:30',
+    )
     assert appointment is not None
-    assert appointment["id"] == appointment_id
+    assert len(appointments) == 1
 
-    appointment = get_appointment_by_id(appointments, 999)
-    assert appointment is None
+    duplicate = create_appointment(
+        appointments, patient, specialist, '2026-09-25', '10:30',
+    )
+    assert duplicate is None
+    assert len(appointments) == 1
 
 
 def test_cancel_appointment():
-    appointments = {}
-    appointment_id = create_appointment(
-        appointments, 1, 1, "2026-09-25", "10:30")
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointments = []
+    appointment = create_appointment(
+        appointments, patient, specialist, '2026-09-25', '10:30',
+    )
+    assert cancel_appointment(appointments, appointment.id) is True
+    assert appointment.status == 'cancelled'
 
-    assert cancel_appointment(appointments, appointment_id) is True
-    assert appointments[appointment_id]["status"] == "cancelled"
-
-    # Повторная отмена невозможна
-    assert cancel_appointment(appointments, appointment_id) is False
-
+    assert cancel_appointment(appointments, appointment.id) is False
     assert cancel_appointment(appointments, 999) is False
 
 
 def test_complete_appointment():
-    appointments = {}
-    appointment_id = create_appointment(
-        appointments, 1, 1, "2026-09-25", "10:30")
-
+    patient = _make_patient()
+    specialist = _make_specialist()
+    appointments = []
+    appointment = create_appointment(
+        appointments, patient, specialist, '2026-09-25', '10:30',
+    )
     assert complete_appointment(
-        appointments, appointment_id, "Диагноз", "Заметки") is True
-    assert appointments[appointment_id]["status"] == "completed"
-    assert appointments[appointment_id]["diagnosis"] == "Диагноз"
-    assert appointments[appointment_id]["notes"] == "Заметки"
+        appointments, appointment.id, 'Диагноз', 'Заметки',
+    ) is True
+    assert appointment.status == 'completed'
 
 
-def test_get_appointment_status():
-    appointment = {"status": "scheduled"}
-    assert get_appointment_status(appointment) == "Запланирована"
+def test_appointments_by_patient():
+    patient1 = _make_patient(1, 'Иван')
+    patient2 = _make_patient(2, 'Ольга')
+    specialist = _make_specialist()
+    appointments = []
+    create_appointment(appointments, patient1, specialist,
+                       '2026-09-25', '10:30')
+    create_appointment(appointments, patient1, specialist,
+                       '2026-09-26', '11:00')
+    create_appointment(appointments, patient2, specialist,
+                       '2026-09-27', '09:00')
 
-    appointment = {"status": "completed"}
-    assert get_appointment_status(appointment) == "Завершена"
-
-    appointment = {"status": "cancelled"}
-    assert get_appointment_status(appointment) == "Отменена"
-
-    appointment = {"status": "unknown"}
-    assert get_appointment_status(appointment) == "Неизвестно"
-
-
-def test_is_slot_available():
-    appointments = {}
-    create_appointment(appointments, 1, 1, "2026-09-25", "10:30")
-
-    assert is_slot_available(appointments, 1, "2026-09-25", "10:30") is False
-    assert is_slot_available(appointments, 1, "2026-09-25", "11:00") is True
-    assert is_slot_available(appointments, 2, "2026-09-25", "10:30") is True
+    assert len(get_appointments_by_patient(appointments, patient1)) == 2
+    assert len(get_appointments_by_patient(appointments, patient2)) == 1
 
 
-def test_get_appointments_by_patient():
-    appointments = {}
-    create_appointment(appointments, 1, 1, "2026-09-25", "10:30")
-    create_appointment(appointments, 1, 2, "2026-09-26", "11:00")
-    create_appointment(appointments, 2, 1, "2026-09-27", "09:00")
+def test_appointments_by_specialist():
+    patient = _make_patient()
+    spec1 = _make_specialist(1, 'Кардиолог')
+    spec2 = _make_specialist(2, 'Терапевт')
+    appointments = []
+    create_appointment(appointments, patient, spec1,
+                       '2026-09-25', '10:30')
+    create_appointment(appointments, patient, spec1,
+                       '2026-09-26', '11:00')
+    create_appointment(appointments, patient, spec2,
+                       '2026-09-27', '09:00')
 
-    patient_appointments = get_appointments_by_patient(appointments, 1)
-    assert len(patient_appointments) == 2
-
-    patient_appointments = get_appointments_by_patient(appointments, 2)
-    assert len(patient_appointments) == 1
-
-
-def test_get_appointments_by_specialist():
-    appointments = {}
-    create_appointment(appointments, 1, 1, "2026-09-25", "10:30")
-    create_appointment(appointments, 2, 1, "2026-09-26", "11:00")
-    create_appointment(appointments, 1, 2, "2026-09-27", "09:00")
-
-    specialist_appointments = get_appointments_by_specialist(appointments, 1)
-    assert len(specialist_appointments) == 2
-
-    specialist_appointments = get_appointments_by_specialist(appointments, 2)
-    assert len(specialist_appointments) == 1
+    assert len(get_appointments_by_specialist(appointments, spec1)) == 2
+    assert len(get_appointments_by_specialist(appointments, spec2)) == 1
