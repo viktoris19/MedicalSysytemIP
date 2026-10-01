@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Специалисты{% endblock %}
+
+{% block content %}
+<h1>Специалисты</h1>
+<p class="text-muted">Всего: {{ specialists|length }}</p>
+
+<ul class="list-group">
+    {% for specialist in specialists %}
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{% url 'specialist_detail' specialist.id %}">
+            {{ specialist.get_full_name }}
+            ({{ specialist.speciality }})
+        </a>
+        <span class="text-muted">
+            стаж: {{ specialist.experience_years }} лет
+        </span>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">Специалистов нет</li>
+    {% endfor %}
+</ul>
+{% endblock %}

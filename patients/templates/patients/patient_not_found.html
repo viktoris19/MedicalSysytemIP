@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Пациент не найден{% endblock %}
+
+{% block content %}
+<h1 class="text-danger">Пациент не найден</h1>
+<a href="{% url 'patients' %}"
+   class="btn btn-outline-secondary">
+    ← к списку пациентов
+</a>
+{% endblock %}

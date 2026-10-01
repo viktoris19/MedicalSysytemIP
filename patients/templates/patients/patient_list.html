@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Пациенты{% endblock %}
+
+{% block content %}
+<h1>Пациенты</h1>
+<p class="text-muted">Всего: {{ patients|length }}</p>
+
+<ul class="list-group">
+    {% for patient in patients %}
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{% url 'patient_detail' patient.id %}">
+            {{ patient.get_full_name }}
+        </a>
+        <span class="text-muted">
+            {{ patient.get_age }} лет,
+            полис: {{ patient.insurance_policy }}
+        </span>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">Пациентов нет</li>
+    {% endfor %}
+</ul>
+{% endblock %}
