@@ -1,0 +1,13 @@
+{% if appointment.status == 'completed' %}
+    <span class="badge appointment-status appointment-status-completed">
+        {{ appointment.get_status_display }}
+    </span>
+{% elif appointment.status == 'cancelled' %}
+    <span class="badge appointment-status appointment-status-cancelled">
+        {{ appointment.get_status_display }}
+    </span>
+{% else %}
+    <span class="badge appointment-status appointment-status-scheduled">
+        {{ appointment.get_status_display }}
+    </span>
+{% endif %}

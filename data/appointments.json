@@ -1,1 +1,79 @@
-{}
+[
+  {
+    "id": 1,
+    "patient_id": 1,
+    "specialist_id": 1,
+    "appointment_date": "2026-10-15",
+    "appointment_time": "10:30",
+    "status": "completed",
+    "complaint": "Боли в груди, одышка при нагрузке",
+    "diagnosis": "Ишемическая болезнь сердца",
+    "notes": "Назначено ЭКГ, холтеровское мониторирование"
+  },
+  {
+    "id": 2,
+    "patient_id": 2,
+    "specialist_id": 2,
+    "appointment_date": "2026-10-16",
+    "appointment_time": "14:00",
+    "status": "completed",
+    "complaint": "Кашель, температура 38°C",
+    "diagnosis": "ОРВИ",
+    "notes": "Постельный режим, обильное питьё, парацетамол"
+  },
+  {
+    "id": 3,
+    "patient_id": 3,
+    "specialist_id": 3,
+    "appointment_date": "2026-10-17",
+    "appointment_time": "09:00",
+    "status": "scheduled",
+    "complaint": "Головные боли, головокружение",
+    "diagnosis": "",
+    "notes": ""
+  },
+  {
+    "id": 4,
+    "patient_id": 4,
+    "specialist_id": 1,
+    "appointment_date": "2026-10-18",
+    "appointment_time": "11:00",
+    "status": "scheduled",
+    "complaint": "Плановый осмотр, профилактика",
+    "diagnosis": "",
+    "notes": ""
+  },
+  {
+    "id": 5,
+    "patient_id": 5,
+    "specialist_id": 2,
+    "appointment_date": "2026-10-19",
+    "appointment_time": "15:30",
+    "status": "scheduled",
+    "complaint": "Боль в горле, насморк",
+    "diagnosis": "",
+    "notes": ""
+  },
+  {
+    "id": 6,
+    "patient_id": 1,
+    "specialist_id": 3,
+    "appointment_date": "2026-10-20",
+    "appointment_time": "16:00",
+    "status": "scheduled",
+    "complaint": "Повторный приём, неврология",
+    "diagnosis": "",
+    "notes": ""
+  },
+  {
+    "id": 7,
+    "patient_id": 2,
+    "specialist_id": 5,
+    "appointment_date": "2026-10-21",
+    "appointment_time": "10:00",
+    "status": "cancelled",
+    "complaint": "Плановый осмотр ребёнка",
+    "diagnosis": "",
+    "notes": ""
+  }
+]

@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Пациенты{% endblock %}
+{% block title %}Пациенты — Медзаписи{% endblock %}
 
 {% block content %}
 <h1>Пациенты</h1>
@@ -8,17 +8,9 @@
 
 <ul class="list-group">
     {% for patient in patients %}
-    <li class="list-group-item d-flex justify-content-between">
-        <a href="{% url 'patient_detail' patient.id %}">
-            {{ patient.get_full_name }}
-        </a>
-        <span class="text-muted">
-            {{ patient.get_age }} лет,
-            полис: {{ patient.insurance_policy }}
-        </span>
-    </li>
+        {% include "patients/includes/patient_card.html" %}
     {% empty %}
-    <li class="list-group-item text-muted">Пациентов нет</li>
+        <li class="list-group-item text-muted">Пациентов нет</li>
     {% endfor %}
 </ul>
 {% endblock %}

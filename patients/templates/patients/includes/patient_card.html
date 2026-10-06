@@ -1,0 +1,8 @@
+<li class="list-group-item d-flex justify-content-between">
+    <a href="{% url 'patients:detail' patient.id %}">
+        {{ patient.get_full_name|default:"Без имени" }}
+    </a>
+    <span class="text-muted">
+        {{ patient.get_age }} лет, полис: {{ patient.insurance_policy }}
+    </span>
+</li>

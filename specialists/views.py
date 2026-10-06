@@ -7,9 +7,7 @@ from storage import load_specialists
 
 def specialists(request: HttpRequest) -> HttpResponse:
     specialists_list = load_specialists('data/specialists.json')
-    context = {
-        'specialists': sort_specialists(specialists_list),
-    }
+    context = {'specialists': sort_specialists(specialists_list)}
     return render(request, 'specialists/specialist_list.html', context)
 
 
@@ -17,9 +15,7 @@ def specialist_detail(
     request: HttpRequest, specialist_id: int,
 ) -> HttpResponse:
     specialists_list = load_specialists('data/specialists.json')
-    specialist = get_specialist_by_id(
-        specialists_list, specialist_id,
-    )
+    specialist = get_specialist_by_id(specialists_list, specialist_id)
 
     if specialist is None:
         return render(

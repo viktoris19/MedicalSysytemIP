@@ -1,14 +1,12 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}{{ specialist.get_full_name }}{% endblock %}
+{% block title %}{{ specialist.get_full_name }} — Медзаписи{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">{{ specialist.get_full_name }}</h5>
-        <p class="card-text">
-            <strong>ID:</strong> {{ specialist.id }}
-        </p>
+        <h1 class="card-title">{{ specialist.get_full_name }}</h1>
+        <p class="card-text"><strong>ID:</strong> {{ specialist.id }}</p>
         <p class="card-text">
             <strong>Специальность:</strong> {{ specialist.speciality }}
         </p>
@@ -29,7 +27,7 @@
     </div>
 </div>
 
-<a href="{% url 'specialists' %}"
+<a href="{% url 'specialists:list' %}"
    class="btn btn-outline-secondary mt-3">
     ← к списку специалистов
 </a>

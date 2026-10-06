@@ -1,1 +1,52 @@
-{}
+[
+  {
+    "id": 1,
+    "first_name": "Иван",
+    "last_name": "Смирнов",
+    "birth_date": "1985-06-15",
+    "phone": "+79991234567",
+    "email": "ivan@mail.ru",
+    "insurance_policy": "POLICY-12345",
+    "address": "г. Москва, ул. Ленина, д. 10"
+  },
+  {
+    "id": 2,
+    "first_name": "Ольга",
+    "last_name": "Иванова",
+    "birth_date": "1990-03-22",
+    "phone": "+79992345678",
+    "email": "olga@mail.ru",
+    "insurance_policy": "POLICY-67890",
+    "address": "г. Москва, ул. Пушкина, д. 5"
+  },
+  {
+    "id": 3,
+    "first_name": "Пётр",
+    "last_name": "Фёдоров",
+    "birth_date": "1978-11-08",
+    "phone": "+79993456789",
+    "email": "petr@mail.ru",
+    "insurance_policy": "POLICY-11111",
+    "address": "г. Москва, ул. Гагарина, д. 20"
+  },
+  {
+    "id": 4,
+    "first_name": "Мария",
+    "last_name": "Кузнецова",
+    "birth_date": "1995-07-30",
+    "phone": "+79994567890",
+    "email": "maria@mail.ru",
+    "insurance_policy": "POLICY-22222",
+    "address": "г. Москва, ул. Мира, д. 15"
+  },
+  {
+    "id": 5,
+    "first_name": "Алексей",
+    "last_name": "Попов",
+    "birth_date": "1982-02-14",
+    "phone": "+79995678901",
+    "email": "alexey@mail.ru",
+    "insurance_policy": "POLICY-33333",
+    "address": "г. Москва, ул. Советская, д. 8"
+  }
+]

@@ -1,0 +1,9 @@
+<li class="list-group-item d-flex justify-content-between">
+    <a href="{% url 'specialists:detail' specialist.id %}">
+        {{ specialist.get_full_name|default:"Без имени" }}
+        ({{ specialist.speciality }})
+    </a>
+    <span class="text-muted">
+        стаж: {{ specialist.experience_years }} лет
+    </span>
+</li>

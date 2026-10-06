@@ -28,6 +28,21 @@
 | `/appointments/` | `appointments.views.appointments` | Список записей |
 | `/appointments/<int:appointment_id>/` | `appointments.views.appointment_detail` | Карточка записи |
 
+## Шаблоны Django (ПР6)
+
+Веб-интерфейс переведён на Django Templates:
+- базовый шаблон `templates/base.html`;
+- наследование через `{% extends %}`;
+- включаемые шаблоны `{% include %}`;
+- передача данных через контекст;
+- циклы `{% for %}` и условия `{% if %}`;
+- именованные URL и namespaces;
+- фильтры `|length`, `|default`;
+- собственные статические файлы: CSS, JS, изображение.
+
+HTML больше не формируется в Python-коде view-функций.
+Функция `page()` удалена.
+
 ## Запуск
 
 ### Веб-версия (Django)

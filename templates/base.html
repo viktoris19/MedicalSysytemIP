@@ -13,31 +13,8 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                🏥 Медзаписи
-            </a>
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'patients' %}">
-                        Пациенты
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'specialists' %}">
-                        Специалисты
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'appointments' %}">
-                        Записи
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
+{% include "includes/header.html" %}
+{% include "includes/navigation.html" %}
     <main class="container">
         {% block content %}{% endblock %}
     </main>
@@ -47,8 +24,6 @@
         <p>Система управления медицинскими записями © 2026</p>
     </footer>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    ></script>
+    <script src="{% static 'homepage/js/main.js' %}"></script>
 </body>
 </html>

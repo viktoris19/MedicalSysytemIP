@@ -1,1 +1,42 @@
-{}
+[
+  {
+    "id": 1,
+    "appointment_id": 1,
+    "document_type": "analysis",
+    "title": "ЭКГ от 15.10.2026",
+    "content": "Синусовый ритм, ЧСС 72, отклонений нет",
+    "file_path": ""
+  },
+  {
+    "id": 2,
+    "appointment_id": 1,
+    "document_type": "referral",
+    "title": "Направление на холтер",
+    "content": "Холтеровское мониторирование ЭКГ на 24 часа",
+    "file_path": ""
+  },
+  {
+    "id": 3,
+    "appointment_id": 2,
+    "document_type": "prescription",
+    "title": "Рецепт от 16.10.2026",
+    "content": "Парацетамол 500 мг 3 раза в день, аскорутин",
+    "file_path": ""
+  },
+  {
+    "id": 4,
+    "appointment_id": 3,
+    "document_type": "conclusion",
+    "title": "Заключение невролога",
+    "content": "Неврологических нарушений не выявлено. Рекомендовано МРТ",
+    "file_path": ""
+  },
+  {
+    "id": 5,
+    "appointment_id": 4,
+    "document_type": "analysis",
+    "title": "Общий анализ крови",
+    "content": "Гемоглобин 140, лейкоциты 6.5, СОЭ 8",
+    "file_path": ""
+  }
+]

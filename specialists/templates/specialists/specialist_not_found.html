@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Специалист не найден{% endblock %}
+{% block title %}Специалист не найден — Медзаписи{% endblock %}
 
 {% block content %}
 <h1 class="text-danger">Специалист не найден</h1>
-<a href="{% url 'specialists' %}"
+<a href="{% url 'specialists:list' %}"
    class="btn btn-outline-secondary">
     ← к списку специалистов
 </a>

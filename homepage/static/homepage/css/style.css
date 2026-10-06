@@ -1,0 +1,40 @@
+.medical-logo {
+    max-width: 180px;
+    height: auto;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.list-group-item a {
+    text-decoration: none;
+    color: #0d6efd;
+}
+
+.list-group-item a:hover {
+    text-decoration: underline;
+}
+
+.appointment-status {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}
+
+.appointment-status-completed {
+    background-color: #198754 !important;
+}
+
+.appointment-status-cancelled {
+    background-color: #6c757d !important;
+}
+
+.appointment-status-scheduled {
+    background-color: #0d6efd !important;
+}

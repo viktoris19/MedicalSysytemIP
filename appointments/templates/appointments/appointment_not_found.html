@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Запись не найдена{% endblock %}
+{% block title %}Запись не найдена — Медзаписи{% endblock %}
 
 {% block content %}
 <h1 class="text-danger">Запись не найдена</h1>
-<a href="{% url 'appointments' %}"
+<a href="{% url 'appointments:list' %}"
    class="btn btn-outline-secondary">
     ← к списку записей
 </a>

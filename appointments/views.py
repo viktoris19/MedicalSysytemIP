@@ -17,10 +17,10 @@ def appointments(request: HttpRequest) -> HttpResponse:
         patients_list,
         specialists_list,
     )
-    context = {
-        'appointments': appointments_list,
-    }
-    return render(request, 'appointments/appointment_list.html', context)
+    context = {'appointments': appointments_list}
+    return render(
+        request, 'appointments/appointment_list.html', context,
+    )
 
 
 def appointment_detail(

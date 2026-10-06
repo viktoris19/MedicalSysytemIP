@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Медицинские записи{% endblock %}
+{% block title %}Главная — Медицинские записи{% endblock %}
 
 {% block content %}
 <h1 class="display-4">Медицинские записи</h1>
@@ -8,14 +8,15 @@
     Система управления медицинскими записями пациентов,
     специалистов и записей на приём.
 </p>
+
 <p>Основные разделы:</p>
-<a href="{% url 'patients' %}" class="btn btn-primary me-2">
+<a href="{% url 'patients:list' %}" class="btn btn-primary me-2">
     Пациенты
 </a>
-<a href="{% url 'specialists' %}" class="btn btn-primary me-2">
+<a href="{% url 'specialists:list' %}" class="btn btn-primary me-2">
     Специалисты
 </a>
-<a href="{% url 'appointments' %}" class="btn btn-secondary">
+<a href="{% url 'appointments:list' %}" class="btn btn-secondary">
     Записи
 </a>
 {% endblock %}

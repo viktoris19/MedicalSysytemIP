@@ -1,12 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Запись №{{ appointment.id }}{% endblock %}
+{% block title %}Запись №{{ appointment.id }} — Медзаписи{% endblock %}
 
 {% block content %}
 <div class="card">
+    <div class="card-header">
+        Запись №{{ appointment.id }}
+    </div>
     <div class="card-body">
-        <h5 class="card-title">Запись №{{ appointment.id }}</h5>
-
         <p class="card-text">
             <strong>Дата:</strong>
             {{ appointment.appointment_date }}
@@ -14,57 +15,41 @@
         </p>
         <p class="card-text">
             <strong>Пациент:</strong>
-            <a href="{% url 'patient_detail' appointment.patient.id %}">
+            <a href="{% url 'patients:detail' appointment.patient.id %}">
                 {{ appointment.patient.get_full_name }}
             </a>
         </p>
         <p class="card-text">
             <strong>Специалист:</strong>
-            <a href="{% url 'specialist_detail' appointment.specialist.id %}">
+            <a href="{% url 'specialists:detail' appointment.specialist.id %}">
                 {{ appointment.specialist.get_full_name }}
                 ({{ appointment.specialist.speciality }})
             </a>
         </p>
         <p class="card-text">
             <strong>Статус:</strong>
-            {% if appointment.status == 'completed' %}
-                <span class="badge bg-success">
-                    {{ appointment.get_status_display }}
-                </span>
-            {% elif appointment.status == 'cancelled' %}
-                <span class="badge bg-secondary">
-                    {{ appointment.get_status_display }}
-                </span>
-            {% elif appointment.status == 'no_show' %}
-                <span class="badge bg-warning text-dark">
-                    {{ appointment.get_status_display }}
-                </span>
-            {% else %}
-                <span class="badge bg-primary">
-                    {{ appointment.get_status_display }}
-                </span>
-            {% endif %}
+            {% include "appointments/includes/appointment_status.html" %}
         </p>
 
         {% if appointment.complaint %}
-        <p class="card-text">
-            <strong>Жалобы:</strong> {{ appointment.complaint }}
-        </p>
+            <p class="card-text">
+                <strong>Жалобы:</strong> {{ appointment.complaint }}
+            </p>
         {% endif %}
         {% if appointment.diagnosis %}
-        <p class="card-text">
-            <strong>Диагноз:</strong> {{ appointment.diagnosis }}
-        </p>
+            <p class="card-text">
+                <strong>Диагноз:</strong> {{ appointment.diagnosis }}
+            </p>
         {% endif %}
         {% if appointment.notes %}
-        <p class="card-text">
-            <strong>Заметки:</strong> {{ appointment.notes }}
-        </p>
+            <p class="card-text">
+                <strong>Заметки:</strong> {{ appointment.notes }}
+            </p>
         {% endif %}
     </div>
 </div>
 
-<a href="{% url 'appointments' %}"
+<a href="{% url 'appointments:list' %}"
    class="btn btn-outline-secondary mt-3">
     ← к списку записей
 </a>
