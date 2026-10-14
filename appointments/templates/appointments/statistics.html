@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика — Медзаписи{% endblock %}
+
+{% block content %}
+<h1>Статистика записей</h1>
+
+<h2 class="mt-4">По статусам</h2>
+<ul class="list-group">
+    {% for item in by_status %}
+    <li class="list-group-item d-flex justify-content-between">
+        <span>{{ item.status }}</span>
+        <span class="badge bg-primary">{{ item.count }}</span>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">Данных нет</li>
+    {% endfor %}
+</ul>
+
+<h2 class="mt-4">По специалистам</h2>
+<ul class="list-group">
+    {% for item in by_specialist %}
+    <li class="list-group-item d-flex justify-content-between">
+        <span>
+            {{ item.last_name }} {{ item.first_name }}
+            ({{ item.speciality }})
+        </span>
+        <span class="badge bg-primary">{{ item.appointments_count }}</span>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'appointments:list' %}"
+   class="btn btn-outline-secondary mt-3">
+    ← к списку записей
+</a>
+{% endblock %}

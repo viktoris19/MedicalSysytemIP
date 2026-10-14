@@ -1,30 +1,51 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from models.specialists import get_specialist_by_id, sort_specialists
-from storage import load_specialists
+from db.database import get_connection
 
 
 def specialists(request: HttpRequest) -> HttpResponse:
-    specialists_list = load_specialists('data/specialists.json')
-    context = {'specialists': sort_specialists(specialists_list)}
-    return render(request, 'specialists/specialist_list.html', context)
+    conn = get_connection()
+    rows = conn.execute(
+        """
+        SELECT id, first_name, last_name, speciality, experience_years
+        FROM specialists
+        ORDER BY last_name
+        """
+    ).fetchall()
+    conn.close()
+
+    return render(
+        request,
+        'specialists/specialist_list.html',
+        {'specialists': [dict(row) for row in rows]},
+    )
 
 
 def specialist_detail(
     request: HttpRequest, specialist_id: int,
 ) -> HttpResponse:
-    specialists_list = load_specialists('data/specialists.json')
-    specialist = get_specialist_by_id(specialists_list, specialist_id)
+    conn = get_connection()
+    row = conn.execute(
+        """
+        SELECT id, first_name, last_name, speciality,
+               phone, email, experience_years
+        FROM specialists
+        WHERE id = ?
+        """,
+        [specialist_id],
+    ).fetchone()
+    conn.close()
 
-    if specialist is None:
+    if row is None:
         return render(
             request,
             'specialists/specialist_not_found.html',
             status=404,
         )
 
-    context = {'specialist': specialist}
     return render(
-        request, 'specialists/specialist_detail.html', context,
+        request,
+        'specialists/specialist_detail.html',
+        {'specialist': dict(row)},
     )

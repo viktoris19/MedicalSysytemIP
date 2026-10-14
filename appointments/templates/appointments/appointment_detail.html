@@ -15,20 +15,22 @@
         </p>
         <p class="card-text">
             <strong>Пациент:</strong>
-            <a href="{% url 'patients:detail' appointment.patient.id %}">
-                {{ appointment.patient.get_full_name }}
+            <a href="{% url 'patients:detail' appointment.patient_id %}">
+                {{ appointment.patient_last_name }}
+                {{ appointment.patient_first_name }}
             </a>
         </p>
         <p class="card-text">
             <strong>Специалист:</strong>
-            <a href="{% url 'specialists:detail' appointment.specialist.id %}">
-                {{ appointment.specialist.get_full_name }}
-                ({{ appointment.specialist.speciality }})
+            <a href="{% url 'specialists:detail' appointment.specialist_id %}">
+                {{ appointment.specialist_last_name }}
+                {{ appointment.specialist_first_name }}
+                ({{ appointment.speciality }})
             </a>
         </p>
         <p class="card-text">
             <strong>Статус:</strong>
-            {% include "appointments/includes/appointment_status.html" %}
+            <span class="badge bg-secondary">{{ appointment.status }}</span>
         </p>
 
         {% if appointment.complaint %}

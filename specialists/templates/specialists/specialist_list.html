@@ -8,9 +8,17 @@
 
 <ul class="list-group">
     {% for specialist in specialists %}
-        {% include "specialists/includes/specialist_card.html" %}
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{% url 'specialists:detail' specialist.id %}">
+            {{ specialist.last_name }} {{ specialist.first_name }}
+            ({{ specialist.speciality }})
+        </a>
+        <span class="text-muted">
+            стаж: {{ specialist.experience_years }} лет
+        </span>
+    </li>
     {% empty %}
-        <li class="list-group-item text-muted">Специалистов нет</li>
+    <li class="list-group-item text-muted">Специалистов нет</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -1,8 +1,11 @@
 {% load static %}
-<header class="container mt-3">
-    <a href="{% url 'homepage:index' %}">
-        <img src="{% static 'homepage/img/logo.png' %}"
-             alt="Логотип Медзаписи"
-             class="medical-logo">
-    </a>
+<header class="container mt-3 mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="{% url 'homepage:index' %}">
+            <img src="{% static 'homepage/img/logo.png' %}"
+                 alt="Логотип Медзаписи"
+                 class="medical-logo">
+        </a>
+        {% include "includes/navigation.html" %}
+    </div>
 </header>

@@ -8,9 +8,16 @@
 
 <ul class="list-group">
     {% for patient in patients %}
-        {% include "patients/includes/patient_card.html" %}
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{% url 'patients:detail' patient.id %}">
+            {{ patient.last_name }} {{ patient.first_name }}
+        </a>
+        <span class="text-muted">
+            полис: {{ patient.insurance_policy }}
+        </span>
+    </li>
     {% empty %}
-        <li class="list-group-item text-muted">Пациентов нет</li>
+    <li class="list-group-item text-muted">Пациентов нет</li>
     {% endfor %}
 </ul>
 {% endblock %}

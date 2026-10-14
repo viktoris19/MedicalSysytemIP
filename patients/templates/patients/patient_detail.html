@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}{{ patient.get_full_name }} — Медзаписи{% endblock %}
+{% block title %}
+    {{ patient.last_name }} {{ patient.first_name }} — Медзаписи
+{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h1 class="card-title">{{ patient.get_full_name }}</h1>
+        <h1 class="card-title">
+            {{ patient.last_name }} {{ patient.first_name }}
+        </h1>
         <p class="card-text"><strong>ID:</strong> {{ patient.id }}</p>
-        <p class="card-text">
-            <strong>Возраст:</strong> {{ patient.get_age }} лет
-        </p>
         <p class="card-text">
             <strong>Дата рождения:</strong> {{ patient.birth_date }}
         </p>
@@ -22,6 +23,11 @@
         <p class="card-text">
             <strong>Полис:</strong> {{ patient.insurance_policy }}
         </p>
+        {% if patient.address %}
+            <p class="card-text">
+                <strong>Адрес:</strong> {{ patient.address }}
+            </p>
+        {% endif %}
     </div>
 </div>
 
@@ -30,13 +36,18 @@
 {% if appointments %}
     <ul class="list-group">
         {% for appointment in appointments %}
-            <li class="list-group-item">
-                <a href="{% url 'appointments:detail' appointment.id %}">
-                    {{ appointment.appointment_date }}
-                    {{ appointment.appointment_time }} —
-                    {{ appointment.specialist.get_full_name }}
-                </a>
-            </li>
+        <li class="list-group-item">
+            <a href="{% url 'appointments:detail' appointment.id %}">
+                {{ appointment.appointment_date }}
+                {{ appointment.appointment_time }} —
+                {{ appointment.specialist_last_name }}
+                {{ appointment.specialist_first_name }}
+                ({{ appointment.speciality }})
+            </a>
+            <span class="badge bg-secondary">
+                {{ appointment.status }}
+            </span>
+        </li>
         {% endfor %}
     </ul>
 {% else %}

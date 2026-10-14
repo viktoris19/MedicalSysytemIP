@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Записи на приём — Медзаписи{% endblock %}
+{% block title %}Записи — Медзаписи{% endblock %}
 
 {% block content %}
 <h1>Записи на приём</h1>
@@ -8,18 +8,22 @@
 
 <ul class="list-group">
     {% for appointment in appointments %}
-        <li class="list-group-item d-flex justify-content-between">
-            <a href="{% url 'appointments:detail' appointment.id %}">
-                #{{ appointment.id }}
-                {{ appointment.appointment_date }}
-                {{ appointment.appointment_time }} —
-                {{ appointment.patient.get_full_name }}
-                → {{ appointment.specialist.get_full_name }}
-            </a>
-            {% include "appointments/includes/appointment_status.html" %}
-        </li>
+    <li class="list-group-item d-flex justify-content-between">
+        <a href="{% url 'appointments:detail' appointment.id %}">
+            #{{ appointment.id }}
+            {{ appointment.appointment_date }}
+            {{ appointment.appointment_time }} —
+            {{ appointment.patient_last_name }}
+            {{ appointment.patient_first_name }}
+            → {{ appointment.specialist_last_name }}
+            ({{ appointment.speciality }})
+        </a>
+        <span class="badge bg-secondary">
+            {{ appointment.status }}
+        </span>
+    </li>
     {% empty %}
-        <li class="list-group-item text-muted">Записей нет</li>
+    <li class="list-group-item text-muted">Записей нет</li>
     {% endfor %}
 </ul>
 {% endblock %}

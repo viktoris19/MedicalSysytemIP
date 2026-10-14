@@ -50,3 +50,34 @@ HTML больше не формируется в Python-коде view-функц
 ```bash
 python manage.py migrate
 python manage.py runserver
+
+## База данных (ПР7)
+
+### Таблицы
+
+| Таблица | Назначение |
+|---------|-----------|
+| `patients` | Пациенты медицинского центра |
+| `specialists` | Врачи-специалисты |
+| `appointments` | Записи на приём |
+| `documents` | Медицинские документы |
+
+### Связи
+
+- `appointments.patient_id → patients.id`
+- `appointments.specialist_id → specialists.id`
+- `documents.appointment_id → appointments.id`
+
+### Файлы проекта
+
+- `sql/schema.sql` — создание таблиц;
+- `sql/queries.sql` — 12 SQL-запросов;
+- `db/database.py` — подключение к SQLite;
+- `db/import_json.py` — импорт данных из JSON;
+- `data/medical_records.sqlite` — файл базы данных.
+
+### Запуск
+
+```bash
+python -m db.import_json    # импорт данных из JSON (один раз)
+python manage.py runserver  # запуск веб-приложения
