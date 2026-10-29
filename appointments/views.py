@@ -1,113 +1,53 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-
-from db.database import get_connection
-
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Count, Q
+from .models import Appointment
+from specialists.models import Specialist
+from django.core.paginator import Paginator
 
 def appointments(request: HttpRequest) -> HttpResponse:
-    conn = get_connection()
-    rows = conn.execute(
-        """
-        SELECT
-            appointments.id,
-            appointments.appointment_date,
-            appointments.appointment_time,
-            appointments.status,
-            patients.last_name AS patient_last_name,
-            patients.first_name AS patient_first_name,
-            specialists.last_name AS specialist_last_name,
-            specialists.first_name AS specialist_first_name,
-            specialists.speciality
-        FROM appointments
-        JOIN patients ON appointments.patient_id = patients.id
-        JOIN specialists ON appointments.specialist_id = specialists.id
-        ORDER BY appointments.appointment_date DESC
-        """
-    ).fetchall()
-    conn.close()
+    appointments_list = Appointment.objects.select_related('patient', 'specialist')
 
-    return render(
-        request,
-        'appointments/appointment_list.html',
-        {'appointments': [dict(row) for row in rows]},
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter:
+        appointments_list = appointments_list.filter(status=status_filter)
+    appointments_list = appointments_list.exclude(status='cancelled')
+    
+    appointments_list = appointments_list.order_by('-appointment_date', '-appointment_time')
+    
+    paginator = Paginator(appointments_list, 5)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    
+    context = {
+        'appointments': page_obj,
+        'selected_status': status_filter,
+    }
+    return render(request, 'appointments/appointment_list.html', context)
+
+def appointment_detail(request: HttpRequest, appointment_id: int) -> HttpResponse:
+    appointment = get_object_or_404(
+        Appointment.objects.select_related('patient', 'specialist'),
+        id=appointment_id
     )
-
-
-def appointment_detail(
-    request: HttpRequest, appointment_id: int,
-) -> HttpResponse:
-    conn = get_connection()
-    row = conn.execute(
-        """
-        SELECT
-            appointments.id,
-            appointments.appointment_date,
-            appointments.appointment_time,
-            appointments.status,
-            appointments.complaint,
-            appointments.diagnosis,
-            appointments.notes,
-            patients.id AS patient_id,
-            patients.first_name AS patient_first_name,
-            patients.last_name AS patient_last_name,
-            specialists.id AS specialist_id,
-            specialists.first_name AS specialist_first_name,
-            specialists.last_name AS specialist_last_name,
-            specialists.speciality
-        FROM appointments
-        JOIN patients ON appointments.patient_id = patients.id
-        JOIN specialists ON appointments.specialist_id = specialists.id
-        WHERE appointments.id = ?
-        """,
-        [appointment_id],
-    ).fetchone()
-    conn.close()
-
-    if row is None:
-        return render(
-            request,
-            'appointments/appointment_not_found.html',
-            status=404,
-        )
-
     return render(
         request,
         'appointments/appointment_detail.html',
-        {'appointment': dict(row)},
+        {'appointment': appointment},
     )
 
-
 def statistics(request: HttpRequest) -> HttpResponse:
-    conn = get_connection()
+    # 1. Аналог GROUP BY status
+    by_status = Appointment.objects.values('status').annotate(
+        count=Count('id')
+    ).order_by('-count')
 
-    by_status = conn.execute(
-        """
-        SELECT status, COUNT(*) AS count
-        FROM appointments
-        GROUP BY status
-        ORDER BY count DESC
-        """
-    ).fetchall()
-
-    by_specialist = conn.execute(
-        """
-        SELECT
-            specialists.last_name,
-            specialists.first_name,
-            specialists.speciality,
-            COUNT(appointments.id) AS appointments_count
-        FROM specialists
-        LEFT JOIN appointments
-            ON specialists.id = appointments.specialist_id
-        GROUP BY specialists.id, specialists.last_name,
-                 specialists.first_name, specialists.speciality
-        ORDER BY appointments_count DESC
-        """
-    ).fetchall()
-    conn.close()
+    # 2. Аналог LEFT JOIN + COUNT
+    by_specialist = Specialist.objects.annotate(
+        appointments_count=Count('appointments')
+    ).order_by('-appointments_count')
 
     context = {
-        'by_status': [dict(row) for row in by_status],
-        'by_specialist': [dict(row) for row in by_specialist],
+        'by_status': by_status,
+        'by_specialist': by_specialist,
     }
     return render(request, 'appointments/statistics.html', context)

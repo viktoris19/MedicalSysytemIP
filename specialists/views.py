@@ -1,51 +1,19 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-
-from db.database import get_connection
-
+from django.shortcuts import render, get_object_or_404
+from .models import Specialist
 
 def specialists(request: HttpRequest) -> HttpResponse:
-    conn = get_connection()
-    rows = conn.execute(
-        """
-        SELECT id, first_name, last_name, speciality, experience_years
-        FROM specialists
-        ORDER BY last_name
-        """
-    ).fetchall()
-    conn.close()
-
+    specialists_list = Specialist.objects.all().order_by('last_name')
     return render(
         request,
         'specialists/specialist_list.html',
-        {'specialists': [dict(row) for row in rows]},
+        {'specialists': specialists_list},
     )
 
-
-def specialist_detail(
-    request: HttpRequest, specialist_id: int,
-) -> HttpResponse:
-    conn = get_connection()
-    row = conn.execute(
-        """
-        SELECT id, first_name, last_name, speciality,
-               phone, email, experience_years
-        FROM specialists
-        WHERE id = ?
-        """,
-        [specialist_id],
-    ).fetchone()
-    conn.close()
-
-    if row is None:
-        return render(
-            request,
-            'specialists/specialist_not_found.html',
-            status=404,
-        )
-
+def specialist_detail(request: HttpRequest, specialist_id: int) -> HttpResponse:
+    specialist = get_object_or_404(Specialist, id=specialist_id)
     return render(
         request,
         'specialists/specialist_detail.html',
-        {'specialist': dict(row)},
+        {'specialist': specialist},
     )

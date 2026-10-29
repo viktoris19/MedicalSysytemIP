@@ -76,6 +76,14 @@ python manage.py runserver
 - `db/import_json.py` — импорт данных из JSON;
 - `data/medical_records.sqlite` — файл базы данных.
 
+## Слой базы данных (ПР9)
+В рамках ПР9 проект переведен с ручных SQL-запросов (`sqlite3`) на Django ORM.
+- Созданы модели: `Patient`, `Specialist`, `Appointment`, `Document`.
+- Настроены связи «многие к одному» (ForeignKey).
+- Данные перенесены из исходной базы `medical_records.sqlite` в `db.sqlite3`.
+- Реализованы: поиск (через `Q` и `icontains`), фильтрация, агрегация (`Count`), пагинация (`Paginator`).
+- Настроена панель администратора для управления записями.
+
 ### Запуск
 
 ```bash

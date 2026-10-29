@@ -40,9 +40,10 @@
             <a href="{% url 'appointments:detail' appointment.id %}">
                 {{ appointment.appointment_date }}
                 {{ appointment.appointment_time }} —
-                {{ appointment.specialist_last_name }}
-                {{ appointment.specialist_first_name }}
-                ({{ appointment.speciality }})
+                <!-- ИСПРАВЛЕНО: идем через точку к специалисту -->
+                {{ appointment.specialist.last_name }}
+                {{ appointment.specialist.first_name }}
+                ({{ appointment.specialist.speciality }})
             </a>
             <span class="badge bg-secondary">
                 {{ appointment.status }}

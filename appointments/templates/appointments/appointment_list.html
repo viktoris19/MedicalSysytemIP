@@ -4,7 +4,25 @@
 
 {% block content %}
 <h1>Записи на приём</h1>
-<p class="text-muted">Всего: {{ appointments|length }}</p>
+<p class="text-muted">Всего на странице: {{ appointments|length }}</p>
+
+<!-- Форма фильтрации по статусу -->
+<form method="get" class="mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-4">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">Все статусы</option>
+                <option value="scheduled" {% if selected_status == 'scheduled' %}selected{% endif %}>Запланировано</option>
+                <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Завершено</option>
+            </select>
+        </div>
+        {% if selected_status %}
+            <div class="col-md-2">
+                <a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary">Сбросить</a>
+            </div>
+        {% endif %}
+    </div>
+</form>
 
 <ul class="list-group">
     {% for appointment in appointments %}
@@ -13,17 +31,61 @@
             #{{ appointment.id }}
             {{ appointment.appointment_date }}
             {{ appointment.appointment_time }} —
-            {{ appointment.patient_last_name }}
-            {{ appointment.patient_first_name }}
-            → {{ appointment.specialist_last_name }}
-            ({{ appointment.speciality }})
+            
+            <!-- ИСПРАВЛЕНО: обращаемся через точку к связанным моделям -->
+            {{ appointment.patient.last_name }}
+            {{ appointment.patient.first_name }}
+            → {{ appointment.specialist.last_name }}
+            ({{ appointment.specialist.speciality }})
         </a>
         <span class="badge bg-secondary">
             {{ appointment.status }}
         </span>
     </li>
     {% empty %}
-    <li class="list-group-item text-muted">Записей нет</li>
+    <li class="list-group-item text-muted">
+        {% if selected_status %}
+            Записей с таким статусом нет.
+        {% else %}
+            Записей нет.
+        {% endif %}
+    </li>
     {% endfor %}
 </ul>
+
+<!-- Блок пагинации -->
+{% if appointments.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if appointments.has_previous %}
+                <li class="page-item">
+                    <!-- Сохраняем фильтр статуса при переходе на предыдущую страницу -->
+                    <a class="page-link" href="?page={{ appointments.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">Назад</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Назад</span>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Страница {{ appointments.number }} из {{ appointments.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if appointments.has_next %}
+                <li class="page-item">
+                    <!-- Сохраняем фильтр статуса при переходе на следующую страницу -->
+                    <a class="page-link" href="?page={{ appointments.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">Вперед</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Вперед</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
 {% endblock %}
