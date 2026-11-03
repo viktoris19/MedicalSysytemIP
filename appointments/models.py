@@ -3,11 +3,22 @@ from patients.models import Patient
 from specialists.models import Specialist
 
 class Appointment(models.Model):
+    class Status(models.TextChoices):
+        SCHEDULED = 'scheduled', 'Запланировано'
+        COMPLETED = 'completed', 'Завершено'
+        CANCELLED = 'cancelled', 'Отменено'
+
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="appointments", verbose_name="Пациент")
     specialist = models.ForeignKey(Specialist, on_delete=models.PROTECT, related_name="appointments", verbose_name="Специалист")
     appointment_date = models.DateField(verbose_name="Дата приема")
     appointment_time = models.TimeField(verbose_name="Время приема")
-    status = models.CharField(max_length=50, default='scheduled', verbose_name="Статус")
+    
+    status = models.CharField(
+        max_length=20, 
+        choices=Status.choices, 
+        default=Status.SCHEDULED, 
+        verbose_name="Статус"
+    )
     complaint = models.TextField(blank=True, null=True, verbose_name="Жалобы")
     diagnosis = models.TextField(blank=True, null=True, verbose_name="Диагноз")
     notes = models.TextField(blank=True, null=True, verbose_name="Заметки")
@@ -20,7 +31,12 @@ class Appointment(models.Model):
         return f"Прием {self.patient} у {self.specialist} ({self.appointment_date})"
 
 class Document(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name="documents", verbose_name="Прием")
+    appointment = models.ForeignKey(
+        Appointment, 
+        on_delete=models.CASCADE, 
+        related_name="documents", 
+        verbose_name="Прием"
+    )
     document_type = models.CharField(max_length=50, verbose_name="Тип документа")
     title = models.CharField(max_length=255, verbose_name="Название")
     content = models.TextField(blank=True, null=True, verbose_name="Содержимое")

@@ -23,7 +23,8 @@
 <ul class="list-group">
     {% for patient in patients %}
     <li class="list-group-item d-flex justify-content-between">
-        <a href="{% url 'patients:detail' patient.id %}">
+        <!-- ИСПОЛЬЗУЕМ МЕТОД get_absolute_url -->
+        <a href="{{ patient.get_absolute_url }}">
             {{ patient.last_name }} {{ patient.first_name }}
         </a>
         <span class="text-muted">

@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Patient
 
+
 def patients(request: HttpRequest) -> HttpResponse:
     # Получаем всех пациентов
     patients_list = Patient.objects.all().order_by('last_name')
@@ -28,9 +29,9 @@ def patients(request: HttpRequest) -> HttpResponse:
     return render(request, 'patients/patient_list.html', context)
 
 
-def patient_detail(request: HttpRequest, patient_id: int) -> HttpResponse:
-    # Получаем пациента по ID (если нет — вернется 404)
-    patient = get_object_or_404(Patient, id=patient_id)
+def patient_detail(request: HttpRequest, slug: str) -> HttpResponse:
+    # Ищем пациента по слагу, а не по ID
+    patient = get_object_or_404(Patient, slug=slug)
     
     # Получаем записи на прием для этого пациента
     appointments = patient.appointments.select_related('specialist').order_by('-appointment_date')
