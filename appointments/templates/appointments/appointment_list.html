@@ -12,8 +12,10 @@
         <div class="col-md-4">
             <select name="status" class="form-select" onchange="this.form.submit()">
                 <option value="">Все статусы</option>
+                <!-- Добавили все три статуса из TextChoices -->
                 <option value="scheduled" {% if selected_status == 'scheduled' %}selected{% endif %}>Запланировано</option>
                 <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Завершено</option>
+                <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Отменено</option>
             </select>
         </div>
         {% if selected_status %}
@@ -31,15 +33,15 @@
             #{{ appointment.id }}
             {{ appointment.appointment_date }}
             {{ appointment.appointment_time }} —
-            
-            <!-- ИСПРАВЛЕНО: обращаемся через точку к связанным моделям -->
             {{ appointment.patient.last_name }}
             {{ appointment.patient.first_name }}
             → {{ appointment.specialist.last_name }}
             ({{ appointment.specialist.speciality }})
         </a>
+        
+        <!-- ИСПОЛЬЗУЕМ get_status_display ДЛЯ КРАСИВОГО ВЫВОДА -->
         <span class="badge bg-secondary">
-            {{ appointment.status }}
+            {{ appointment.get_status_display }}
         </span>
     </li>
     {% empty %}

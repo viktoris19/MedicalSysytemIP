@@ -6,17 +6,14 @@ from .models import Patient
 
 
 def patients(request: HttpRequest) -> HttpResponse:
-    # Получаем всех пациентов
     patients_list = Patient.objects.all().order_by('last_name')
     
-    # Поиск по фамилии или имени
     query = request.GET.get('q', '').strip()
     if query:
         patients_list = patients_list.filter(
             Q(last_name__icontains=query) | Q(first_name__icontains=query)
         )
     
-    # Пагинация
     paginator = Paginator(patients_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -30,7 +27,6 @@ def patients(request: HttpRequest) -> HttpResponse:
 
 
 def patient_detail(request: HttpRequest, slug: str) -> HttpResponse:
-    # Ищем пациента по слагу, а не по ID
     patient = get_object_or_404(Patient, slug=slug)
     
     # Получаем записи на прием для этого пациента

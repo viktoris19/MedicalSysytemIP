@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings # <-- Добавить
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -10,7 +10,6 @@ urlpatterns = [
     path('appointments/', include('appointments.urls')),
 ]
 
-# <-- Добавить блок для Debug Toolbar
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [

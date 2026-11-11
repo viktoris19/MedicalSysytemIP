@@ -5,7 +5,17 @@
 {% block content %}
 <h1>Статистика записей</h1>
 
-<h2 class="mt-4">По статусам</h2>
+<!-- Блок общей статистики (используем aggregate) -->
+<div class="alert alert-info mt-3">
+    <h4 class="alert-heading">Общая сводка</h4>
+    <p class="mb-0"><strong>Всего приемов:</strong> {{ total_stats.total }}</p>
+    <p class="mb-0"><strong>Запланировано:</strong> {{ total_stats.scheduled }}</p>
+    <p class="mb-0"><strong>Завершено:</strong> {{ total_stats.completed }}</p>
+    <p class="mb-0"><strong>Отменено:</strong> {{ total_stats.cancelled }}</p>
+</div>
+
+<!-- Блок группировки по статусам (используем values + annotate) -->
+<h2 class="mt-4">По статусам (GROUP BY)</h2>
 <ul class="list-group">
     {% for item in by_status %}
     <li class="list-group-item d-flex justify-content-between">
@@ -17,6 +27,7 @@
     {% endfor %}
 </ul>
 
+<!-- Блок по специалистам (используем обратную связь annotate) -->
 <h2 class="mt-4">По специалистам</h2>
 <ul class="list-group">
     {% for item in by_specialist %}
@@ -27,6 +38,8 @@
         </span>
         <span class="badge bg-primary">{{ item.appointments_count }}</span>
     </li>
+    {% empty %}
+    <li class="list-group-item text-muted">Специалистов нет</li>
     {% endfor %}
 </ul>
 
