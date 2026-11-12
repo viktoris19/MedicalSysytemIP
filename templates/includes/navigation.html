@@ -1,7 +1,21 @@
-<nav class="d-flex gap-3">
+<nav class="d-flex align-items-center gap-3">
     <a class="nav-link" href="{% url 'homepage:index' %}">Главная</a>
     <a class="nav-link" href="{% url 'patients:list' %}">Пациенты</a>
     <a class="nav-link" href="{% url 'specialists:list' %}">Специалисты</a>
     <a class="nav-link" href="{% url 'appointments:list' %}">Записи</a>
     <a class="nav-link" href="{% url 'appointments:statistics' %}">Статистика</a>
+
+    <!-- Блок авторизации -->
+    <div class="ms-4 border-start ps-3">
+        {% if user.is_authenticated %}
+            <span class="text-muted me-2">Привет, <strong>{{ user.username }}</strong>!</span>
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">Выйти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Войти</a>
+            <a href="{% url 'patients:register' %}" class="btn btn-primary btn-sm ms-1">Регистрация</a>
+        {% endif %}
+    </div>
 </nav>

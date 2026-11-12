@@ -15,15 +15,14 @@
         </p>
         <p class="card-text">
             <strong>Пациент:</strong>
-            <!-- ИСПРАВЛЕНО: appointment.patient.id вместо appointment.patient_id, и идем через точку -->
-            <a href="{% url 'patients:detail' appointment.patient.id %}">
+            <a href="{% url 'patients:detail' appointment.patient.slug %}">
                 {{ appointment.patient.last_name }}
                 {{ appointment.patient.first_name }}
             </a>
         </p>
         <p class="card-text">
             <strong>Специалист:</strong>
-            <!-- ИСПРАВЛЕНО: appointment.specialist.id вместо appointment.specialist_id -->
+            <!-- Проверьте, есть ли у вас маршрут specialists:detail и он принимает id -->
             <a href="{% url 'specialists:detail' appointment.specialist.id %}">
                 {{ appointment.specialist.last_name }}
                 {{ appointment.specialist.first_name }}
@@ -32,7 +31,7 @@
         </p>
         <p class="card-text">
             <strong>Статус:</strong>
-            <span class="badge bg-secondary">{{ appointment.status }}</span>
+            <span class="badge bg-secondary">{{ appointment.get_status_display }}</span>
         </p>
 
         {% if appointment.complaint %}
@@ -50,7 +49,16 @@
                 <strong>Заметки:</strong> {{ appointment.notes }}
             </p>
         {% endif %}
+        
         <hr>
+        
+        <!-- Кнопка для перехода к форме загрузки документа -->
+        <div class="mb-3">
+            <a href="{% url 'appointments:document_upload' appointment.id %}" class="btn btn-primary btn-sm">
+                + Прикрепить документ
+            </a>
+        </div>
+        
         <h5 class="mt-3">Документы к приему</h5>
         {% if appointment.documents.all %}
             <ul class="list-group">
@@ -63,8 +71,11 @@
                                 <br><small class="text-muted">{{ doc.content }}</small>
                             {% endif %}
                         </div>
-                        {% if doc.file_path %}
-                            <span class="text-muted"><small>Файл: {{ doc.file_path }}</small></span>
+                        <!-- Ссылка на скачивание файла -->
+                        {% if doc.file %}
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                📄 Скачать файл
+                            </a>
                         {% endif %}
                     </li>
                 {% endfor %}
@@ -75,8 +86,7 @@
     </div>
 </div>
 
-<a href="{% url 'appointments:list' %}"
-   class="btn btn-outline-secondary mt-3">
+<a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary mt-3">
     ← к списку записей
 </a>
 {% endblock %}

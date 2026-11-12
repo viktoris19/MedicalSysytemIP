@@ -3,6 +3,9 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Patient
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views import generic
 
 
 def patients(request: HttpRequest) -> HttpResponse:
@@ -37,3 +40,8 @@ def patient_detail(request: HttpRequest, slug: str) -> HttpResponse:
         'appointments': appointments,
     }
     return render(request, 'patients/patient_detail.html', context)
+
+class RegisterView(generic.CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/register.html'

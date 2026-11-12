@@ -1,93 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Записи — Медзаписи{% endblock %}
-
 {% block content %}
-<h1>Записи на приём</h1>
-<p class="text-muted">Всего на странице: {{ appointments|length }}</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Записи на приём</h1>
+    <a href="{% url 'appointments:create' %}" class="btn btn-primary">+ Создать запись</a>
+</div>
 
-<!-- Форма фильтрации по статусу -->
-<form method="get" class="mb-4">
-    <div class="row align-items-center">
+<form method="get" class="card card-body mb-4 bg-light">
+    <div class="row align-items-end">
         <div class="col-md-4">
-            <select name="status" class="form-select" onchange="this.form.submit()">
-                <option value="">Все статусы</option>
-                <!-- Добавили все три статуса из TextChoices -->
-                <option value="scheduled" {% if selected_status == 'scheduled' %}selected{% endif %}>Запланировано</option>
-                <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Завершено</option>
-                <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Отменено</option>
-            </select>
+            {{ form.date.label_tag }}
+            {{ form.date }}
         </div>
-        {% if selected_status %}
-            <div class="col-md-2">
-                <a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary">Сбросить</a>
-            </div>
-        {% endif %}
+        <div class="col-md-4">
+            {{ form.specialist.label_tag }}
+            {{ form.specialist }}
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-secondary w-100">Фильтровать</button>
+        </div>
     </div>
 </form>
 
 <ul class="list-group">
-    {% for appointment in appointments %}
-    <li class="list-group-item d-flex justify-content-between">
-        <a href="{% url 'appointments:detail' appointment.id %}">
-            #{{ appointment.id }}
-            {{ appointment.appointment_date }}
-            {{ appointment.appointment_time }} —
-            {{ appointment.patient.last_name }}
-            {{ appointment.patient.first_name }}
-            → {{ appointment.specialist.last_name }}
-            ({{ appointment.specialist.speciality }})
-        </a>
+    {% for app in appointments %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <strong>#{{ app.id }}</strong> 
+            {{ app.appointment_date }} в {{ app.appointment_time }}<br>
+            {{ app.patient.last_name }} → {{ app.specialist.last_name }} 
+            <span class="badge bg-info">{{ app.get_status_display }}</span>
+        </div>
         
-        <!-- ИСПОЛЬЗУЕМ get_status_display ДЛЯ КРАСИВОГО ВЫВОДА -->
-        <span class="badge bg-secondary">
-            {{ appointment.get_status_display }}
-        </span>
+        <div>
+            <!-- Кнопка редактирования (ПУНКТ 11) -->
+            <a href="{% url 'appointments:edit' app.id %}" class="btn btn-sm btn-outline-warning">Изменить</a>
+            
+            <!-- Форма отмены (ПУНКТ 13 и 16) -->
+            {% if app.status == 'scheduled' %}
+            <form action="{% url 'appointments:cancel' app.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Отменить прием?');">Отменить</button>
+            </form>
+            {% endif %}
+        </div>
     </li>
     {% empty %}
-    <li class="list-group-item text-muted">
-        {% if selected_status %}
-            Записей с таким статусом нет.
-        {% else %}
-            Записей нет.
-        {% endif %}
-    </li>
+    <li class="list-group-item">Записей нет</li>
     {% endfor %}
 </ul>
-
-<!-- Блок пагинации -->
-{% if appointments.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if appointments.has_previous %}
-                <li class="page-item">
-                    <!-- Сохраняем фильтр статуса при переходе на предыдущую страницу -->
-                    <a class="page-link" href="?page={{ appointments.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">Назад</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">Назад</span>
-                </li>
-            {% endif %}
-
-            <li class="page-item disabled">
-                <span class="page-link">
-                    Страница {{ appointments.number }} из {{ appointments.paginator.num_pages }}
-                </span>
-            </li>
-
-            {% if appointments.has_next %}
-                <li class="page-item">
-                    <!-- Сохраняем фильтр статуса при переходе на следующую страницу -->
-                    <a class="page-link" href="?page={{ appointments.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">Вперед</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">Вперед</span>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-{% endif %}
-
 {% endblock %}
