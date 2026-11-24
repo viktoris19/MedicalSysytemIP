@@ -1,87 +1,91 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required 
 from django.views.decorators.http import require_POST
-from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count, Q
-from django.contrib.auth.decorators import login_required
-from .models import Appointment, Document
-from specialists.models import Specialist
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from .models import Appointment
 from .forms import AppointmentFilterForm, AppointmentForm, DocumentForm
+from .mixins import DataMixin
+from specialists.models import Specialist
 
-@login_required
-def appointments(request):
-    appointments_list = Appointment.objects.active().select_related('patient', 'specialist')
+class AppointmentListView(LoginRequiredMixin, DataMixin, ListView):
+    model = Appointment
+    template_name = 'appointments/appointment_list.html'
+    context_object_name = 'appointments'
+    paginate_by = 5 
+    title = 'Записи на прием'
     
-    form = AppointmentFilterForm(request.GET or None)
-    if form.is_bound and form.is_valid():
-        date = form.cleaned_data.get('date')
-        specialist = form.cleaned_data.get('specialist')
+    def get_queryset(self):
+        queryset = Appointment.objects.active().select_related('patient', 'specialist')
         
-        if date:
-            appointments_list = appointments_list.filter(appointment_date=date)
-        if specialist:
-            appointments_list = appointments_list.filter(specialist=specialist)
+        form = AppointmentFilterForm(self.request.GET or None)
+        if form.is_bound and form.is_valid():
+            if form.cleaned_data.get('date'):
+                queryset = queryset.filter(appointment_date=form.cleaned_data['date'])
+            if form.cleaned_data.get('specialist'):
+                queryset = queryset.filter(specialist=form.cleaned_data['specialist'])
+                
+        return queryset.order_by('-appointment_date', '-appointment_time')
 
-    appointments_list = appointments_list.order_by('-appointment_date', '-appointment_time')
-    
-    paginator = Paginator(appointments_list, 5)
-    page_obj = paginator.get_page(request.GET.get('page'))
-    
-    return render(request, 'appointments/appointment_list.html', {
-        'appointments': page_obj,
-        'form': form,
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = AppointmentFilterForm(self.request.GET or None)
+        return context
 
-@login_required
-def appointment_create(request):
-    if request.method == 'POST':
-        form = AppointmentForm(request.POST)
-        if form.is_valid():
-            specialist = form.cleaned_data['specialist']
-            date = form.cleaned_data['appointment_date']
-            time = form.cleaned_data['appointment_time']
+class AppointmentDetailView(LoginRequiredMixin, DataMixin, DetailView):
+    model = Appointment
+    template_name = 'appointments/appointment_detail.html'
+    context_object_name = 'appointment'
+    pk_url_kwarg = 'appointment_id'
+    title = 'Карточка приема'
+
+class AppointmentCreateView(LoginRequiredMixin, DataMixin, CreateView):
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'appointments/appointment_form.html'
+    success_url = reverse_lazy('appointments:list')
+    title = 'Создание приема'
+
+    def form_valid(self, form):
+        specialist = form.cleaned_data['specialist']
+        date = form.cleaned_data['appointment_date']
+        time = form.cleaned_data['appointment_time']
+        
+        is_busy = Appointment.objects.active().filter(
+            specialist=specialist, appointment_date=date, appointment_time=time
+        ).exists()
+        
+        if is_busy:
+            form.add_error(None, "У этого врача уже есть прием на это время.")
+            return self.form_invalid(form)
             
-            is_busy = Appointment.objects.active().filter(
-                specialist=specialist, 
-                appointment_date=date, 
-                appointment_time=time
-            ).exists()
+        return super().form_valid(form)
 
-            if is_busy:
-                form.add_error(None, "У этого врача уже есть прием на это время.")
-            else:
-                form.save()
-                return redirect('appointments:list')
-    else:
-        form = AppointmentForm()
+class AppointmentUpdateView(LoginRequiredMixin, DataMixin, UpdateView):
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'appointments/appointment_form.html'
+    success_url = reverse_lazy('appointments:list')
+    pk_url_kwarg = 'appointment_id'
+    title = 'Редактирование приема'
+
+    def form_valid(self, form):
+        specialist = form.cleaned_data['specialist']
+        date = form.cleaned_data['appointment_date']
+        time = form.cleaned_data['appointment_time']
+
+        is_busy = Appointment.objects.active().filter(
+            specialist=specialist, appointment_date=date, appointment_time=time
+        ).exclude(pk=self.object.pk).exists()
         
-    return render(request, 'appointments/appointment_form.html', {'form': form})
-
-@login_required
-def appointment_edit(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    
-    if request.method == 'POST':
-        form = AppointmentForm(request.POST, instance=appointment)
-        if form.is_valid():
-            specialist = form.cleaned_data['specialist']
-            date = form.cleaned_data['appointment_date']
-            time = form.cleaned_data['appointment_time']
+        if is_busy:
+            form.add_error(None, "У этого врача уже есть прием на это время.")
+            return self.form_invalid(form)
             
-            is_busy = Appointment.objects.active().filter(
-                specialist=specialist, 
-                appointment_date=date, 
-                appointment_time=time
-            ).exclude(pk=appointment.pk).exists()
-
-            if is_busy:
-                form.add_error(None, "У этого врача уже есть прием на это время.")
-            else:
-                form.save()
-                return redirect('appointments:list')
-    else:
-        form = AppointmentForm(instance=appointment)
-        
-    return render(request, 'appointments/appointment_form.html', {'form': form})
+        return super().form_valid(form)
 
 @login_required
 @require_POST
@@ -92,16 +96,20 @@ def appointment_cancel(request, appointment_id):
     return redirect('appointments:list')
 
 @login_required
-def appointment_detail(request, appointment_id):
-    appointment = get_object_or_404(
-        Appointment.objects.select_related('patient', 'specialist'),
-        id=appointment_id
-    )
-    return render(
-        request,
-        'appointments/appointment_detail.html',
-        {'appointment': appointment}
-    )
+def document_upload(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.appointment = appointment
+            document.save()
+            return redirect('appointments:detail', appointment_id=appointment.id)
+    else:
+        form = DocumentForm()
+        
+    return render(request, 'appointments/document_form.html', {'form': form, 'appointment': appointment})
 
 @login_required
 def statistics(request):
@@ -111,11 +119,9 @@ def statistics(request):
         completed=Count('id', filter=Q(status=Appointment.Status.COMPLETED)),
         cancelled=Count('id', filter=Q(status=Appointment.Status.CANCELLED)),
     )
-
     by_status = Appointment.objects.values('status').annotate(
         count=Count('id')
     ).order_by('-count')
-
     status_dict = dict(Appointment.Status.choices)
     for item in by_status:
         item['status'] = status_dict.get(item['status'], item['status'])
@@ -130,19 +136,3 @@ def statistics(request):
         'by_specialist': by_specialist,
     }
     return render(request, 'appointments/statistics.html', context)
-
-@login_required
-def document_upload(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    
-    if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES) 
-        if form.is_valid():
-            document = form.save(commit=False)
-            document.appointment = appointment
-            document.save()
-            return redirect('appointments:detail', appointment_id=appointment.id)
-    else:
-        form = DocumentForm()
-        
-    return render(request, 'appointments/document_form.html', {'form': form, 'appointment': appointment})
