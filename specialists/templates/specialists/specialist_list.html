@@ -21,4 +21,25 @@
     <li class="list-group-item text-muted">Специалистов нет</li>
     {% endfor %}
 </ul>
+
+<!-- Блок пагинации (используем page_obj) -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперед</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
 {% endblock %}

@@ -1,19 +1,20 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.views.generic import ListView, DetailView
+from appointments.mixins import DataMixin
 from .models import Specialist
 
-def specialists(request: HttpRequest) -> HttpResponse:
-    specialists_list = Specialist.objects.all().order_by('last_name')
-    return render(
-        request,
-        'specialists/specialist_list.html',
-        {'specialists': specialists_list},
-    )
+class SpecialistListView(DataMixin, ListView):
+    model = Specialist
+    template_name = 'specialists/specialist_list.html'
+    context_object_name = 'specialists'
+    paginate_by = 10
+    title = 'Список специалистов'
 
-def specialist_detail(request: HttpRequest, specialist_id: int) -> HttpResponse:
-    specialist = get_object_or_404(Specialist, id=specialist_id)
-    return render(
-        request,
-        'specialists/specialist_detail.html',
-        {'specialist': specialist},
-    )
+    def get_queryset(self):
+        return Specialist.objects.all().order_by('last_name')
+
+class SpecialistDetailView(DataMixin, DetailView):
+    model = Specialist
+    template_name = 'specialists/specialist_detail.html'
+    context_object_name = 'specialist'
+    pk_url_kwarg = 'specialist_id'
+    title = 'Карточка специалиста'
